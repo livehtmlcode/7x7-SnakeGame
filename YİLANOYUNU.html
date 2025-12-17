@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <!-- ✅ TEMEL SEO METALARI -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>7x7 Yılan Oyunu – LiveHTML | Okan Kaplan</title>
+  <meta name="description" content="7x7 Yılan Oyunu – Hatasız, akıcı ve tamamen JavaScript ile yapılmış interaktif bir mini oyun. LiveHTML tarafından geliştirildi.">
+  <meta name="keywords" content="yılan oyunu, snake game, javascript oyun, 7x7 puzzle, interaktif grid, html oyun, livehtml">
+  <meta name="author" content="Okan Kaplan | LiveHTML">
+  
+  <!-- ✅ SOSYAL PAYLAŞIM / OPEN GRAPH -->
+  <meta property="og:title" content="7x7 Yılan Oyunu – LiveHTML">
+  <meta property="og:description" content="Tamamen JavaScript ile yapılmış, responsive 7x7 yılan oyunu. Oyna, öğren, geliştir!">
+  <meta property="og:image" content="https://www.livehtmlcode.com/preview/snake7x7.jpg">
+  <meta property="og:url" content="https://www.livehtmlcode.com/snake7x7">
+  <meta property="og:type" content="website">
+  
+  <!-- ✅ TWITTER CARD -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="7x7 Yılan Oyunu – LiveHTML">
+  <meta name="twitter:description" content="Hatasız, sade ve tamamen JS ile yapılmış 7x7 yılan oyunu.">
+  <meta name="twitter:image" content="https://www.livehtmlcode.com/preview/snake7x7.jpg">
+
+  <link rel="canonical" href="https://www.livehtmlcode.com/snake7x7">
+
+  <style>
+    /* === GENEL TASARIM === */
+    body { 
+      background: radial-gradient(circle at center, #111, #000);
+      font-family: "Segoe UI", sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    /* === GRID === */
+    #grid {
+      display: grid;
+      grid-template-columns: repeat(7, 60px);
+      grid-template-rows: repeat(7, 60px);
+      gap: 6px;
+      user-select: none;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    /* === HÜCRELER === */
+    .cell {
+      background: #222;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 45px;
+      font-weight: 700;
+      transition: all 0.25s ease;
+      color: #ff0;
+    }
+    .cell:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 6px #ff0;
+    }
+    .selected {
+      background: #ffcc00 !important;
+      color: #000 !important;
+      transform: scale(1.05);
+      box-shadow: 0 0 8px #ff0;
+    }
+
+    /* === MESAJ, KONTROL VE BUTONLAR === */
+    #msg { 
+      margin-top: 20px; 
+      font-size: 18px; 
+      text-shadow: 0 0 6px #fff; 
+    }
+    #controls { margin-top: 15px; }
+    button {
+      padding: 6px 12px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #ffcc00;
+      color: #000;
+      font-weight: bold;
+      box-shadow: 0 0 6px #ff0;
+      transition: 0.25s ease;
+    }
+    button:hover {
+      background: #ffe766;
+      transform: scale(1.05);
+    }
+    #timer {
+      margin-left: 10px;
+      font-weight: bold;
+    }
+
+    /* === NAVIGATION BAR === */
+    nav {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+    }
+    nav a {
+      color: #ffcc00;
+      text-decoration: none;
+      font-weight: bold;
+      transition: color 0.3s;
+    }
+    nav a:hover {
+      color: #fff;
+      text-shadow: 0 0 5px #ff0;
+    }
+
+    /* === FOOTER === */
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #aaa;
+    }
+    footer .social-links {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    footer a {
+      color: #ffcc00;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    footer a:hover {
+      color: #fff;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 600px) {
+      #grid { 
+        grid-template-columns: repeat(7, 40px);
+        grid-template-rows: repeat(7, 40px);
+      }
+      .cell { font-size: 14px; }
+    }
+/* === HEADER STİLİ === */
+header {
+  width: 100%;
+  background: linear-gradient(90deg, #000, #111);
+  padding: 12px 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(255, 204, 0, 0.3);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* === LOGO === */
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  color: #ffcc00;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.5px;
+  transition: 0.3s ease;
+}
+.logo:hover {
+  color: #fff;
+  text-shadow: 0 0 10px #ffcc00;
+}
+
+/* === NAV === */
+nav {
+  display: flex;
+  gap: 15px;
+}
+nav a {
+  color: #ffcc00;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+nav a:hover {
+  color: #fff;
+  transform: scale(1.05);
+  text-shadow: 0 0 6px #ffcc00;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 700px) {
+  nav {
+    display: none;
+  }
+  header {
+    text-align: center;
+  }
+  .logo {
+    margin: 0 auto;
+  }
+}
+  </style>
+</head>
+<body>
+<!-- === HEADER (LiveHTML.net) === -->
+<header>
+  <div class="header-container">
+    <a href="https://www.livehtml.net" class="logo" target="_blank" rel="noopener">
+      🟡 <span>LiveHTML</span>
+    </a>
+    <nav>
+      <a href="https://www.youtube.com/@livehtmlcode" target="_blank" rel="noopener">🎬 YouTube</a>
+      <a href="https://codepen.io/livehtml" target="_blank" rel="noopener">💻 CodePen</a>
+      <a href="https://sketchfab.com/canvasor" target="_blank" rel="noopener">🎨 Sketchfab</a>
+      <a href="https://www.linkedin.com/in/canvasor/" target="_blank" rel="noopener">🔗 LinkedIn</a>
+    </nav>
+  </div>
+</header>
+  <h1>🟡 7x7 Yılan Oyunu</h1>
+  <p>Her hücreyi sırayla seçerek yılanın yolunu tamamla!</p>
+
+  <!-- === ANA GRID === -->
+  <div id="grid"></div>
+  <div id="msg">Yılan yolu hazırlanıyor...</div>
+
+  <!-- === KONTROLLER === -->
+  <div id="controls">
+    <button id="resetBtn">🔄 Yeniden Yükle</button>
+    <span id="timer">⏱ 0s</span>
+  </div>
+
+  <!-- === NAVIGATION === -->
+  <nav>
+    <a href="https://www.youtube.com/@livehtmlcode" target="_blank" rel="noopener">🎬 YouTube</a>
+    <a href="https://codepen.io/livehtml" target="_blank" rel="noopener">💻 CodePen</a>
+    <a href="https://sketchfab.com/canvasor" target="_blank" rel="noopener">🎨 Sketchfab</a>
+    <a href="https://www.linkedin.com/in/canvasor/" target="_blank" rel="noopener">🔗 LinkedIn</a>
+  </nav>
+<!-- === MODAL === -->
+<div id="modal" style="
+  position: fixed;
+  top: 0; left: 0; right:0; bottom:0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+">
+  <img src="https://livehtml.net/snake.jpg" alt="Snake" style="
+    max-width: 80%;
+    max-height: 80%;
+    border: 4px solid #ffcc00;
+    border-radius: 12px;
+    box-shadow: 0 0 20px #ffcc00;
+  ">
+</div>
+
+<script>
+  // Sayfa açıldığında modalı 5 saniye sonra kapat
+  window.addEventListener('load', () => {
+    const modal = document.getElementById('modal');
+    setTimeout(() => {
+      modal.style.display = 'none';
+    }, 5000); // 5000ms = 5 saniye
+  });
+</script>
+  <!-- === FOOTER === -->
+  <footer>
+    <p>© 2025 <strong>LiveHTML</strong>  </p>
+    <div class="social-links">
+     
+      <a href="https://www.youtube.com/@livehtmlcode" target="_blank">🎬 YouTube</a>
+      <a href="https://codepen.io/livehtml" target="_blank">💻 CodePen</a>
+      <a href="https://sketchfab.com/canvasor" target="_blank">🎨 Sketchfab</a>
+      <a href="https://www.linkedin.com/in/canvasor/" target="_blank">🔗 LinkedIn</a>
+    </div>
+    <p style="margin-top:8px;font-size:12px;">🪶 Bu proje <strong>MIT Lisansı</strong> ile paylaşılmıştır.</p>
+  </footer>
+
+  <!-- === JAVASCRIPT === -->
+  <script>
+  /* ===================================================
+     🐍 7x7 YILAN OYUNU
+     Yapan: LiveHTML (Okan Kaplan)
+     Lisans: MIT
+     =================================================== */
+
+  const gridEl = document.getElementById("grid");
+  const msg = document.getElementById("msg");
+  const resetBtn = document.getElementById("resetBtn");
+  const timerEl = document.getElementById("timer");
+
+  const size = 7;
+  let lastStep = 0;
+  let lastCell = null;
+  let timer = null;
+  let seconds = 0;
+  let timerStarted = false;
+  let snakePath = [];
+  const directions = [[1,0],[-1,0],[0,1],[0,-1]];
+
+  // 🕒 ZAMANLAYICI BAŞLAT
+  function startTimer(){
+    if(timerStarted) return;
+    timerStarted = true;
+    timer = setInterval(()=>{
+      seconds++;
+      timerEl.textContent=`⏱ ${seconds}s`;
+    },1000);
+  }
+
+  // 🔄 ZAMANLAYICI SIFIRLA
+  function resetTimer(){ 
+    clearInterval(timer); 
+    seconds=0; 
+    timerEl.textContent="⏱ 0s"; 
+    timerStarted=false; 
+  }
+
+  // 🧩 RASTGELE YILAN YOLU OLUŞTUR
+  function generateSnakePath(){
+    const grid = Array.from({length:size},()=>Array(size).fill(0));
+    let x=Math.floor(Math.random()*size);
+    let y=Math.floor(Math.random()*size);
+    grid[y][x]=1;
+    for(let n=2;n<=size*size;n++){
+      const neighbors=directions.map(([dx,dy])=>[x+dx,y+dy])
+        .filter(([nx,ny])=> nx>=0 && nx<size && ny>=0 && ny<size && grid[ny][nx]===0);
+      if(neighbors.length===0) return generateSnakePath();
+      const [nx,ny]=neighbors[Math.floor(Math.random()*neighbors.length)];
+      grid[ny][nx]=n; x=nx; y=ny;
+    }
+    return grid;
+  }
+
+  const stepMap={1:1,6:2,12:3,17:4,23:5,29:6,35:7,40:8,45:9};
+
+  // 🧱 GRID OLUŞTUR
+  function buildGrid(){
+    gridEl.innerHTML="";
+    lastStep=0; lastCell=null; snakePath=[];
+    resetTimer();
+    msg.textContent="Yılan yolu hazırlanıyor...";
+
+    // Eğer 1 saniyede oluşturulmazsa yeniden dene
+    let reloadTimeout = setTimeout(()=>{ buildGrid(); },1000);
+
+    setTimeout(()=>{
+      const map = generateSnakePath();
+      clearTimeout(reloadTimeout);
+      for(let y=0;y<size;y++){
+        for(let x=0;x<size;x++){
+          const cell=document.createElement("div");
+          cell.className="cell";
+          const order=map[y][x];
+          cell.dataset.order=order;
+          cell.dataset.row=y;
+          cell.dataset.col=x;
+          cell.dataset.step=stepMap[order]||'';
+          cell.textContent=stepMap[order]||'';
+          cell.addEventListener("click",onClick);
+          gridEl.appendChild(cell);
+        }
+      }
+
+      const firstCell=Array.from(gridEl.children).find(c=>parseInt(c.dataset.step)===1)||gridEl.children[0];
+      selectCell(firstCell);
+      snakePath.push(firstCell);
+      lastCell=firstCell;
+      lastStep=1;
+      msg.textContent=" ";
+    },200);
+  }
+
+  // 🎯 HÜCRE TIKLAMA
+  function onClick(e){
+    if(!timerStarted) startTimer();
+    const cell=e.currentTarget;
+    const cellStep=parseInt(cell.dataset.step)||0;
+
+    if(cell.classList.contains("selected")){ removeFrom(cell); return; }
+    if(lastCell && !isNeighbor(lastCell,cell)){ markWrong(cell); return; }
+    if(cellStep>0 && cellStep!==lastStep+1){ markWrong(cell); return; }
+
+    selectCell(cell);
+    snakePath.push(cell);
+    lastCell=cell;
+    if(cellStep) lastStep=cellStep;
+
+    if(document.querySelectorAll(".cell.selected").length===size*size){
+      msg.textContent=`🎉 Tebrikler, tüm 49 hücre seçildi! Süre: ${seconds}s`;
+      clearInterval(timer);
+    }
+  }
+
+  function selectCell(cell){
+    cell.classList.add("selected");
+    cell.style.background="#ffcc00";
+    cell.style.color="#000";
+  }
+
+  function markWrong(cell){
+    cell.style.background="#ff0000";
+    cell.style.color="#fff";
+    setTimeout(()=>{
+      if(!cell.classList.contains("selected")){
+        cell.style.background="#222";
+        cell.style.color="#ff0";
+      }
+    },500);
+  }
+
+  // ↩️ GERİ ALMA
+  function removeFrom(cell){
+    const index=snakePath.indexOf(cell);
+    for(let i=index;i<snakePath.length;i++){
+      const c=snakePath[i];
+      c.classList.remove("selected");
+      c.style.background="#222";
+      c.style.color="#ff0";
+    }
+    snakePath=snakePath.slice(0,index);
+    lastCell=snakePath.length?snakePath[snakePath.length-1]:null;
+    lastStep=lastCell?parseInt(lastCell.dataset.step):0;
+  }
+
+  function isNeighbor(a,b){
+    const ra=parseInt(a.dataset.row), ca=parseInt(a.dataset.col);
+    const rb=parseInt(b.dataset.row), cb=parseInt(b.dataset.col);
+    return Math.abs(ra-rb)+Math.abs(ca-cb)===1;
+  }
+
+  function checkDeadEnd(){
+    if(snakePath.length===0) return;
+    const last=snakePath[snakePath.length-1];
+    const neighbors=Array.from(gridEl.children)
+      .filter(c=>!c.classList.contains("selected") && isNeighbor(last,c));
+    if(neighbors.length===0){
+      const maxPath=[snakePath[0]];
+      for(let i=1;i<snakePath.length;i++){
+        const last=maxPath[maxPath.length-1];
+        if(isNeighbor(last,snakePath[i])) maxPath.push(snakePath[i]);
+        else break;
+      }
+      snakePath.forEach(c=>{
+        if(!maxPath.includes(c)){
+          c.classList.remove("selected");
+          c.style.background="#222";
+          c.style.color="#ff0";
+        }
+      });
+      snakePath=maxPath;
+      lastCell=snakePath.length?snakePath[snakePath.length-1]:null;
+      lastStep=lastCell?parseInt(lastCell.dataset.step):0;
+    }
+  }
+
+  resetBtn.addEventListener("click",buildGrid);
+  buildGrid();
+  setInterval(checkDeadEnd,500);
+  </script>
+</body>
+</html>
